@@ -374,7 +374,7 @@ ProcLRRGetScreenInfo(ClientPtr client)
     rep.nSizes = 1;
     rep.nrateEnts = 1 + 1;
     rep.sizeID = 0;
-    rep.rate = 50;
+    rep.rate = RDP_MODE_REFRESH_RATE;
     extraLen = rep.nSizes * sizeof(xScreenSizes);
     extraLen += rep.nrateEnts * sizeof(CARD16);
     extra = (CARD8 *) calloc(extraLen, 1);
@@ -391,7 +391,7 @@ ProcLRRGetScreenInfo(ClientPtr client)
     size++;
     *rates = 1; /* number of rates */
     rates++;
-    *rates = 50;
+    *rates = RDP_MODE_REFRESH_RATE;
     rep.length = bytes_to_int32(extraLen);
     WriteToClient(client, sizeof(rep), &rep);
     if (extraLen != 0)
@@ -1173,7 +1173,7 @@ rdpLRRSetRdpOutputs(rdpPtr dev)
         g_modes[0].height = height;
         g_modes[0].hTotal = width;
         g_modes[0].vTotal = height;
-        g_modes[0].dotClock = 50 * width * height;
+        g_modes[0].dotClock = (CARD32) RDP_MODE_REFRESH_RATE * width * height;
         snprintf(modeName, LRRMaxModesNameLength, "%dx%d", width, height);
         g_modes[0].nameLength = strlen(modeName);
         memcpy(g_modeNames[0], modeName, g_modes[0].nameLength);
@@ -1200,7 +1200,7 @@ rdpLRRSetRdpOutputs(rdpPtr dev)
             g_modes[index].height = height;
             g_modes[index].hTotal = width;
             g_modes[index].vTotal = height;
-            g_modes[index].dotClock = 50 * width * height;
+            g_modes[index].dotClock = (CARD32) RDP_MODE_REFRESH_RATE * width * height;
             snprintf(modeName, LRRMaxModesNameLength, "%dx%d", width, height);
             g_modes[index].nameLength = strlen(modeName);
             memcpy(g_modeNames[index], modeName, g_modes[index].nameLength);

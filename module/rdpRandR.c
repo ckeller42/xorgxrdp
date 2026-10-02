@@ -420,7 +420,6 @@ rdpRRConnectOutput(RROutputPtr output, RRCrtcPtr crtc,
     RRModePtr mode;
     xRRModeInfo modeInfo = {0};
     char name[64];
-    const int vfreq = 50;
 
     LOG(LOG_LEVEL_TRACE, "rdpRRConnectOutput:");
     sprintf (name, "%dx%d", width, height);
@@ -428,7 +427,7 @@ rdpRRConnectOutput(RROutputPtr output, RRCrtcPtr crtc,
     modeInfo.height = height;
     modeInfo.hTotal = width;
     modeInfo.vTotal = height;
-    modeInfo.dotClock = vfreq * width * height;
+    modeInfo.dotClock = (CARD32) RDP_MODE_REFRESH_RATE * width * height;
     modeInfo.nameLength = strlen(name);
     mode = RRModeGet(&modeInfo, name);
     if (mode == 0)

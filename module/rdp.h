@@ -45,6 +45,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #define RDP_MAX_TILES 4096
 
+/* refresh rate (Hz) advertised in RandR modes; compositors pace frames to it */
+#define RDP_MODE_REFRESH_RATE 60
+
 #define COLOR8(r, g, b) \
     ((((r) >> 5) << 0)  | (((g) >> 5) << 3) | (((b) >> 6) << 6))
 #define COLOR15(r, g, b) \
