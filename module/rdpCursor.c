@@ -325,6 +325,14 @@ rdpSpriteSetCursorCon(rdpClientCon *clientCon,
                     set_pixel_safe(cur_data, index,
                                    (sending_height - 1) - jndex,
                                    sending_width, sending_height, 32, pixel);
+                    /* fully transparent: mark in the AND mask too, for
+                     * clients that ignore the alpha channel */
+                    if ((pixel & 0xff000000) == 0)
+                    {
+                        set_pixel_safe(cur_mask, index,
+                                       (sending_height - 1) - jndex,
+                                       sending_width, sending_height, 1, 1);
+                    }
                 }
             }
         }
