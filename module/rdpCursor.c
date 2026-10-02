@@ -221,6 +221,34 @@ set_pixel_safe(uint8_t *data, int x, int y, int width, int height, int bpp,
 }
 
 /******************************************************************************/
+/* Optional: treat cursor pixels with alpha below XORGXRDP_CURSOR_ALPHA_CUTOFF
+ * (1..256, unset = off) as fully transparent. For clients that ignore the
+ * alpha channel and would draw soft shadows as an opaque dark outline. */
+static int
+get_cursor_alpha_cutoff(void)
+{
+    static int cutoff = -1;
+    const char *env;
+
+    if (cutoff < 0)
+    {
+        cutoff = 0;
+        env = getenv("XORGXRDP_CURSOR_ALPHA_CUTOFF");
+        if (env != NULL)
+        {
+            cutoff = atoi(env);
+            if ((cutoff < 0) || (cutoff > 256))
+            {
+                cutoff = 0;
+            }
+            LOG(LOG_LEVEL_INFO, "get_cursor_alpha_cutoff: "
+                "XORGXRDP_CURSOR_ALPHA_CUTOFF %d", cutoff);
+        }
+    }
+    return cutoff;
+}
+
+/******************************************************************************/
 static void
 rdpSpriteSetCursorCon(rdpClientCon *clientCon,
                       DeviceIntPtr pDev, ScreenPtr pScr, CursorPtr pCurs,
@@ -248,6 +276,7 @@ rdpSpriteSetCursorCon(rdpClientCon *clientCon,
     int can_do_new;
     int can_do_large;
     int cursor_id;
+    int alpha_cutoff;
 
     LOG(LOG_LEVEL_TRACE, "rdpSpriteSetCursorCon:");
     if (clientCon->suppress_output)
@@ -313,6 +342,7 @@ rdpSpriteSetCursorCon(rdpClientCon *clientCon,
             xhot = pCurs->bits->xhot;
             yhot = pCurs->bits->yhot;
             data = (uint8_t *)(pCurs->bits->argb);
+            alpha_cutoff = get_cursor_alpha_cutoff();
             memset(cur_data, 0, 96 * 96 * 4);
             memset(cur_mask, 0, 96 * 96 / 8);
             for (jndex = 0; jndex < sending_height; jndex++)
@@ -322,6 +352,10 @@ rdpSpriteSetCursorCon(rdpClientCon *clientCon,
                     pixel = get_pixel_safe(data, index, jndex,
                                            paddedRowBytes / 4,
                                            server_height, 32);
+                    if (((pixel >> 24) & 0xff) < alpha_cutoff)
+                    {
+                        pixel = 0;
+                    }
                     set_pixel_safe(cur_data, index,
                                    (sending_height - 1) - jndex,
                                    sending_width, sending_height, 32, pixel);
